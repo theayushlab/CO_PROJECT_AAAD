@@ -290,7 +290,6 @@ def run_assembler(src_path, bin_path, txt_path=""):
                         raise ValueError("Undefined label: '" + tgt + "'")
                 off  = validate_jal_off(off)
                 word = enc_jal(parts[1], off)
-
             elif mnem == "jalr":
                 if "(" in parts[2]:
                     off, base = split_mem_operand(parts[2])
@@ -345,8 +344,6 @@ def run_assembler(src_path, bin_path, txt_path=""):
     if txt_path:
         with open(txt_path, "w") as fh:
             fh.write(payload)
-
-
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python3 assembler.py <source.asm> <output.bin> [readable.txt]")
