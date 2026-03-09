@@ -62,7 +62,16 @@ def parse_int(token):
 
 
 
+def remove_comment(raw_line):
+    cut = raw_line.find("#")
+    return raw_line[:cut].strip() if cut != -1 else raw_line.strip()
 
+
+def check_label(name):
+    if not name:
+        raise ValueError("Label name cannot be empty")
+    if not (name[0].isalpha() or name[0] == "_"):
+        raise ValueError("Label '" + name + "' must begin with a letter or underscore")
 
 
 
