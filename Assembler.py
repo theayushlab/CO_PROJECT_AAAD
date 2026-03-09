@@ -117,7 +117,18 @@ def validate_jal_off(val):
     return v
 
 
+def verify_operand_count(mnemonic, parts):
+    needed = _MIN_OPS.get(mnemonic, 0)
+    got    = len(parts) - 1
+    if got < needed:
+        raise ValueError(
+            "'" + mnemonic + "' needs " + str(needed) +
+            " operand(s), got " + str(got)
+        )
 
+
+def normalise(line):
+    return line.replace(",", " ").split()
 
 
 
