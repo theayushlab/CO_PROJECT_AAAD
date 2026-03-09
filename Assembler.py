@@ -1,9 +1,6 @@
 import sys
-
 OFFSET_FROM_NEXT = False
-
 MAX_INSTRUCTIONS = 64
-
 REGISTER_MAP = {
     "zero": 0,  "ra":  1,  "sp":  2,  "gp":  3,  "tp":  4,
     "t0":   5,  "t1":  6,  "t2":  7,  "s0":  8,  "fp":  8,
@@ -14,7 +11,7 @@ REGISTER_MAP = {
     "t4":  29,  "t5": 30,  "t6": 31,
 }
 for _n in range(32):
-    REGISTER_MAP["x" + str(_n)] = _n
+    REGISTER_MAP["x"+str(_n)] = _n
 
 RTYPE = {
     "add":  ("0000000", "000"),  "sub":  ("0100000", "000"),
@@ -26,8 +23,7 @@ RTYPE = {
 
 ITYPE = {
     "addi":  "000",  "slti":  "010",  "sltiu": "011",
-    "xori":  "100",  "ori":   "110",  "andi":  "111",
-}
+    "xori":  "100",  "ori":   "110",  "andi":  "111",}
 
 IMM_SHIFT = {
     "slli": ("001", "0000000"),
@@ -154,14 +150,14 @@ def enc_imm_shift(op, dst, src1, shamt):
 def enc_load(dst, offset, base):
     val  = clamp_imm12(offset, "load offset")
     bits = format(val & 0xFFF, "012b")
-    return bits + reg_num(base) + "010" + reg_num(dst) + "0000011"
+    return bits+reg_num(base)+"010"+reg_num(dst)+"0000011"
 
 
 def enc_store(src, offset, base):
     val  = clamp_imm12(offset, "store offset")
     bits = format(val & 0xFFF, "012b")
     upper, lower = bits[:7], bits[7:]
-    return upper + reg_num(src) + reg_num(base) + "010" + lower + "0100011"
+    return upper+reg_num(src)+reg_num(base)+"010"+lower+"0100011"
 
 
 def enc_branch(op, rs1, rs2, offset):
@@ -171,7 +167,7 @@ def enc_branch(op, rs1, rs2, offset):
     b11   = str((imm >> 11) & 1)
     b10_5 = format((imm >>  5) & 0x3F,  "06b")
     b4_1  = format((imm >>  1) & 0x0F,  "04b")
-    return b12 + b10_5 + reg_num(rs2) + reg_num(rs1) + f3 + b4_1 + b11 + "1100011"
+    return b12+b10_5+reg_num(rs2)+reg_num(rs1)+f3+b4_1+b11+"1100011"
 
 
 def enc_jal(dst, offset):
@@ -193,7 +189,7 @@ def enc_utype(op, dst, imm):
     opcode = "0110111" if op == "lui" else "0010111"
     val    = clamp_imm20(imm, op + " immediate")
     bits   = format(val & 0xFFFFF, "020b")
-    return bits + reg_num(dst) + opcode
+    return bits+reg_num(dst)+opcode
 
 
 def run_assembler(src_path, bin_path, txt_path=""):
