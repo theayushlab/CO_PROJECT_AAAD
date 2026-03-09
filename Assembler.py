@@ -49,7 +49,10 @@ _MIN_OPS.update({"lw": 2, "sw": 2, "jal": 2, "jalr": 2, "lui": 2, "auipc": 2})
 
 
 
-
+def parse_int(token):
+    if isinstance(token, int):
+        return token
+    return int(token, 0)
 
 
 
