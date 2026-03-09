@@ -98,7 +98,23 @@ def check_label(name):
 
 
 
+def validate_branch_off(val):
+    v = parse_int(val)
+    if v % 2:
+        raise ValueError("Branch offset must be 2-byte aligned, got " + str(v))
+    if not (-4096 <= v <= 4094):
+        raise ValueError("Branch offset " + str(v) + " out of [-4096, 4094]")
+    return v
 
+
+def validate_jal_off(val):
+    v = parse_int(val)
+    if v % 2:
+        raise ValueError("JAL offset must be 2-byte aligned, got " + str(v))
+    lo, hi = -(1 << 20), (1 << 20) - 2
+    if not (lo <= v <= hi):
+        raise ValueError("JAL offset " + str(v) + " out of range")
+    return v
 
 
 
