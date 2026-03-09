@@ -1,5 +1,2 @@
 import sys
 
-OFFSET_FROM_NEXT = False
-
-MAX_INSTRUCTIONS = 64
