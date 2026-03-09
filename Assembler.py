@@ -174,7 +174,19 @@ def normalise(line):
 
 
 
+def enc_jal(dst, offset):
+    imm    = parse_int(offset) & 0x1FFFFF
+    b20    = str((imm >> 20) & 1)
+    b19_12 = format((imm >> 12) & 0xFF,  "08b")
+    b11    = str((imm >> 11) & 1)
+    b10_1  = format((imm >>  1) & 0x3FF, "010b")
+    return b20 + b10_1 + b11 + b19_12 + reg_num(dst) + "1101111"
 
+
+def enc_jalr(dst, base, imm):
+    val  = clamp_imm12(imm, "jalr immediate")
+    bits = format(val & 0xFFF, "012b")
+    return bits + reg_num(base) + "000" + reg_num(dst) + "1100111"
 
 
 
