@@ -201,7 +201,6 @@ def run_assembler(src_path, bin_path, txt_path=""):
         stripped = remove_comment(raw)
         if stripped:
             cleaned.append((lineno, stripped))
-
     label_table = {}
     instr_list  = []
     addr        = 0
@@ -339,7 +338,6 @@ def run_assembler(src_path, bin_path, txt_path=""):
 
     if found_err:
         sys.exit(1)
-
     payload = "\n".join(encoded) + "\n"
     with open(bin_path, "w") as fh:
         fh.write(payload)
@@ -353,6 +351,5 @@ if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python3 assembler.py <source.asm> <output.bin> [readable.txt]")
         sys.exit(1)
-
     extra = sys.argv[3] if len(sys.argv) > 3 else ""
     run_assembler(sys.argv[1], sys.argv[2], extra)
