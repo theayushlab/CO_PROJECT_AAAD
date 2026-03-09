@@ -39,3 +39,9 @@ BRANCH = {
     "blt":  "100",  "bge":  "101",
     "bltu": "110",  "bgeu": "111",
 }
+_MIN_OPS = {}
+for _k in RTYPE:     _MIN_OPS[_k] = 3
+for _k in ITYPE:     _MIN_OPS[_k] = 3
+for _k in IMM_SHIFT: _MIN_OPS[_k] = 3
+for _k in BRANCH:    _MIN_OPS[_k] = 3
+_MIN_OPS.update({"lw": 2, "sw": 2, "jal": 2, "jalr": 2, "lui": 2, "auipc": 2})
