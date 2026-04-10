@@ -47,12 +47,7 @@ def jimm(w):
     return sext(raw, 21)
 
 
-def valid_mem(addr):
-    if addr % 4 != 0:
-        return False, f"unaligned address 0x{addr:08X} (must be 4-byte aligned)"
-    in_range = (STACK_START <= addr <= STACK_END) or (DATA_START <= addr <= DATA_END)
-    if not in_range:
-        return False, (f"out of bounds address 0x{addr:08X} "
+
                        f"(valid: stack 0x{STACK_START:08X}-0x{STACK_END:08X}, "
                        f"data 0x{DATA_START:08X}-0x{DATA_END:08X})")
     return True, ""
