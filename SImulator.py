@@ -99,6 +99,89 @@ class RV32Sim:
         cols = [to_bin(nxt_pc)] + [to_bin(v) for v in self.x]
         return " ".join(cols) + " "
 
+def _do_rtype(self, rd, rs1, rs2, f3, f7):
+        fn = self._rtab.get((f3, f7))
+        if fn is None:
+            return
+        a, b   = signed32(self.x[rs1]), signed32(self.x[rs2])
+        ua, ub = self.x[rs1], self.x[rs2]
+        sh     = ub & 0x1F
+        if rd:
+            self.x[rd] = fn(a, b, ua, ub, sh)
+
+    def _do_itype(self, rd, rs1, imm, f3, f7, shamt):
+        a  = signed32(self.x[rs1])
+        ua = self.x[rs1]
+        if   f3 == 0:              v = mask32(a + imm)
+        elif f3 == 1 and f7 == 0:  v = mask32(ua << shamt)
+        elif f3 == 2:              v = 1 if a < imm else 0
+        elif f3 == 3:              v = 1 if ua < mask32(imm) else 0
+        elif f3 == 4:              v = mask32(a ^ imm)
+        elif f3 == 5 and f7 == 0:  v = ua >> shamt
+        elif f3 == 5 and f7 == 32: v = mask32(a >> shamt)
+        elif f3 == 6:              v = mask32(a | imm)
+        elif f3 == 7:              v = mask32(a & imm)
+        else:                      return
+        if rd:
+            self.x[rd] = v
+
+    def _step(self, word, lineno):
+        op  = word & 0x7F
+        rd  = (word >>  7) & 0x1F
+        f3  = (word >> 12) & 0x07
+        rs1 = (word >> 15) & 0x1F
+        rs2 = (word >> 20) & 0x1F
+        f7  = (word >> 25) & 0x7F
+        nxt = self.pc + 4
+
+        if op == 0x33:
+            self._do_rtype(rd, rs1, rs2, f3, f7)
+
+        elif op == 0x13:
+            self._do_itype(rd, rs1, iimm(word), f3, f7, (word >> 20) & 0x1F)
+
+        elif op == 0x03 and f3 == 2:    # lw
+            addr = mask32(self.x[rs1] + iimm(word))
+            ok, reason = valid_mem(addr)
+            if not ok:
+                print(f"Error at line {lineno}: Invalid memory access ({reason})")
+                return None
+            elif rd:
+                self.x[rd] = self.mem.get(addr, 0)
+
+        elif op == 0x23 and f3 == 2:    # sw
+            addr = mask32(self.x[rs1] + simm(word))
+            ok, reason = valid_mem(addr)
+            if not ok:
+                print(f"Error at line {lineno}: Invalid memory access ({reason})")
+                return None
+            else:
+                self.mem[addr] = mask32(self.x[rs2])
+
+        elif op == 0x63:    # branches
+            a, b   = signed32(self.x[rs1]), signed32(self.x[rs2])
+            ua, ub = self.x[rs1], self.x[rs2]
+            taken = {0: ua==ub, 1: ua!=ub, 4: a<b, 5: a>=b, 6: ua<ub, 7: ua>=ub}.get(f3, False)
+            if taken:
+                nxt = mask32(self.pc + bimm(word))
+
+        elif op == 0x6F:    # jal
+            self.x[rd] = mask32(self.pc + 4)
+            nxt = mask32(self.pc + jimm(word))
+
+        elif op == 0x67 and f3 == 0:    # jalr
+            ret = mask32(self.pc + 4)
+            nxt = mask32(self.x[rs1] + iimm(word)) & 0xFFFFFFFE
+            self.x[rd] = ret
+
+        elif op == 0x37:    # lui
+            if rd: self.x[rd] = uimm(word)
+
+        elif op == 0x17:    # auipc
+            if rd: self.x[rd] = mask32(self.pc + uimm(word))
+
+        self.x[0] = 0
+        return nxt
 
 
             
