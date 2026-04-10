@@ -182,7 +182,64 @@ def _do_rtype(self, rd, rs1, rs2, f3, f7):
 
         self.x[0] = 0
         return nxt
+        
+    def execute(self, prog):
+        cycles = 0
+        while cycles < MAX_CYCLES:
+            slot = self.pc // 4
+            if self.pc < 0 or slot >= len(prog):
+                break
+            word = prog[slot]
+            nxt  = self._step(word, slot + 1)
+            if nxt is None:
+                break
+            self.log.append(self._snap(nxt))
+            if word == 0x00000063:  # virtual halt
+                self.halted = True
+                break
+            self.pc = nxt
+            cycles += 1
 
+    def dump_data(self):
+        out = []
+        for k in range(32):
+            addr = DATA_START + k * 4
+            out.append("0x%08X:%s" % (addr, to_bin(self.mem.get(addr, 0))))
+        return out
+
+
+def main():
+    if len(sys.argv) < 3:
+        print("Usage: python3 Simulator.py input.txt output.txt [readable.txt]")
+        sys.exit(1)
+
+    in_path  = sys.argv[1]
+    out_path = sys.argv[2]
+    rd_path  = sys.argv[3] if len(sys.argv) > 3 else None
+
+    prog = load_program(in_path)
+    if not prog:
+        print("Error: no valid instructions in " + in_path)
+        sys.exit(1)
+
+    sim = RV32Sim()
+    sim.execute(prog)
+
+    lines = sim.log[:]
+    if sim.halted:
+        lines += sim.dump_data()
+
+    body = "\n".join(lines) + ("\n" if lines else "")
+
+    with open(out_path, "w") as fh:
+        fh.write(body)
+    if rd_path:
+        with open(rd_path, "w") as fh:
+            fh.write(body)
+
+
+if __name__ == "__main__":
+    main()
 
             
 
