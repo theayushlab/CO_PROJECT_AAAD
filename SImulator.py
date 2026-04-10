@@ -2,7 +2,6 @@ import sys
 
 # RV32I Simulator -- CO Project 2026
 # Team: Ayush, Kumar, Devesh, Swami
-# Run: python3 Simulator.py input.txt output.txt [readable.txt]
 
 STACK_START = 0x00000000
 STACK_END   = 0x000001FC
