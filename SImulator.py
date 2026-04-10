@@ -48,7 +48,5 @@ def jimm(w):
 
 
 
-                       f"(valid: stack 0x{STACK_START:08X}-0x{STACK_END:08X}, "
-                       f"data 0x{DATA_START:08X}-0x{DATA_END:08X})")
-    return True, ""
+            
 
